@@ -268,7 +268,9 @@ class Mysql {
             $where = $this->parseWhere();
             //whereIn
             $whereIn = $this->parseWhereIn();
+            
             //gryop by
+            $group_by = '';
             if (isset($this->options['groupBy'])) {
                 $groupBy_condition = array();
                 foreach ($this->options['groupBy'] as $k => $v) {
@@ -276,7 +278,9 @@ class Mysql {
                 }
                 $group_by = ' GROUP BY ' . implode(',', $groupBy_condition);
             }
+
             //having
+            $having = '';
             $having_condition = array();
             $having_values = array();
             if (isset($this->options['having'])) {
@@ -290,6 +294,7 @@ class Mysql {
             }
             
             //order by conditions
+            $orderBy_str = '';
             if (isset($this->options['orderBy'])) {
                 $orderBy_condition = array();
                 foreach ($this->options['orderBy'] as $k => $v) {
@@ -306,6 +311,7 @@ class Mysql {
             }
            
             //limit conditions
+            $limit = '';
             if (isset($this->options['limit'][0][0])) {
                 $limit = ' limit ' . $this->options['limit'][0][0];
             }
