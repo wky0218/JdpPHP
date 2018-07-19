@@ -1,4 +1,9 @@
 <?php
+// +----------------------------------------------------------------------
+// | Mysql
+// +----------------------------------------------------------------------
+// | Author: alice <wky0218@hotmail.com>
+// +----------------------------------------------------------------------
 class Mysql {
     private static $object;
     private $PDO;
@@ -8,20 +13,34 @@ class Mysql {
     private $table_prefix;
     private $options = array();
     private $sql;
-
+    /**
+     * __construct
+     * @access private
+     * @param  array  $config
+     */
     private function __construct($config = array()) {
     }
+    /**
+     * getInstance
+     * @access public
+     * @param  array  $config
+     * @return mixed
+     */
     public static function getInstance() {
         if (!(self::$object instanceof self)) {
             self::$object = new self;
         }
         return self::$object;
     }
+    /**
+     * __clone
+     * @access public
+     * @param  array  $config
+     * @return mixed
+     */
     private function __clone() {
         trigger_error('Clone is not allow!', E_USER_ERROR);
     }
-
-    
     /**
      * connect
      * @access public
@@ -65,9 +84,9 @@ class Mysql {
                     <title>mysql error</title>
                   </head>
                   <body>
-                    <div style='width: 50%; height: 200px; border: 1px solid red; font-size: 12px;'>
-                        <div>SQL>>$this->sql;</div>
-                       <div>ERROR>>$error</div>
+                    <div style='width: 50%; height: 200px; margin:0 auto;padding:5px;border: 1px solid red; font-size: 12px;'>
+                        <div>sql:<br>$this->sql;</div>
+                       <div>errorMsg:<br>$error</div>
                     </div>
                   </body>
                </html>
@@ -111,20 +130,20 @@ class Mysql {
             }
             $name = join(',', $names);
             $value = join(',', $values);
-            $sql = 'INSERT INTO `'.$this->table_name.'`('.$name.') VALUES('.$value.')';
+            $sql = 'INSERT INTO `' . $this->table_name . '`(' . $name . ') VALUES(' . $value . ')';
             $this->stmt = $this->prepareSql($sql);
             foreach ($param1 as $k => & $v) {
-                $this->stmt->bindParam(':'.$k, $v);
+                $this->stmt->bindParam(':' . $k, $v);
             }
         }
         $result = $this->sqlExecute();
         return $this->PDO->lastinsertid();
     }
     /**
-     * 批量插入
-     * @param array  $data 要插入的数据, 格式:array(array(), array());
-     * @param int    $rows 一次插入多少条记录
-     * @param string $table 表名
+     * insertAll
+     * @param array  $data
+     * @param int    $rows
+     * @param string $table
      */
     public function insertAll($data, $rows = 100, $table = null) {
         $table = is_null($table) ? $this->table_name : $table;
@@ -133,7 +152,7 @@ class Mysql {
             break;
         }
         $field = join(',', $fields);
-        $sql = 'INSERT INTO `'.$table.'`('.$field.') VALUES';
+        $sql = 'INSERT INTO `' . $table . '`(' . $field . ') VALUES';
         $insertData = array();
         $insertNum = 0;
         $i = 0;
@@ -147,18 +166,16 @@ class Mysql {
             $sql.= '(' . $oneRec_str . '),';
             $t = ($i + 1) % $rows;
             if ($t == 0 || ($i + 1) == count($data)) {
-                //将最后的逗号替换成分号
                 $sql = rtrim($sql, ',') . ';';
                 $this->stmt = $this->prepareSql($sql);
                 foreach ($insertData as $bk => & $value) {
                     $this->stmt->bindParam($bk + 1, $value);
                 }
-                //插入数据库
                 $res = $this->sqlExecute();
                 $rowCount = $this->stmt->rowCount();
                 $insertNum+= $rowCount;
-                //重置 字符串 $sql
-                $sql = 'INSERT INTO `'.$table.'`('.$field.') VALUES';
+                //reset
+                $sql = 'INSERT INTO `' . $table . '`(' . $field . ') VALUES';
                 $insertData = array();
             }
             $i++;
@@ -194,17 +211,14 @@ class Mysql {
             $where_and_in = ($where['condition'] && $whereIn['condition']) ? ' and ' : '';
             $sql = ' UPDATE ' . $this->table_name . ' SET ' . $rowSql . $iswhere . $where['condition'] . $where_and_in . $whereIn['condition'];
             $this->stmt = $this->prepareSql($sql);
-
             $row_values = array_values($param1);
             $binValues = array_merge($row_values, $where['value'], $whereIn['value']);
-            foreach ($binValues as $k => & $v) {              
-                $this->stmt->bindParam($k + 1, $v);                            
+            foreach ($binValues as $k => & $v) {
+                $this->stmt->bindParam($k + 1, $v);
             }
         }
-
-        $result =  $this->sqlExecute();     
+        $result = $this->sqlExecute();
         return $this->stmt->rowCount();
-
     }
     /**
      *delete
@@ -258,9 +272,11 @@ class Mysql {
             if (isset($this->options['fields'])) {
                 $fields = array();
                 foreach ($this->options['fields'] as $k => $v) {
-                    $fields[] = $v[0];
+                    if ($v[0]) {
+                        $fields[] = $v[0];
+                    }
                 }
-                $fields_str = implode(',', $fields);
+                $fields_str = $fields ? implode(',', $fields) : '*';
             } else {
                 $fields_str = '*';
             }
@@ -268,7 +284,6 @@ class Mysql {
             $where = $this->parseWhere();
             //whereIn
             $whereIn = $this->parseWhereIn();
-            
             //gryop by
             $group_by = '';
             if (isset($this->options['groupBy'])) {
@@ -278,7 +293,6 @@ class Mysql {
                 }
                 $group_by = ' GROUP BY ' . implode(',', $groupBy_condition);
             }
-
             //having
             $having = '';
             $having_condition = array();
@@ -292,24 +306,19 @@ class Mysql {
                 }
                 $having = ' having ' . implode(' and ', $having_condition);
             }
-            
             //order by conditions
             $orderBy_str = '';
             if (isset($this->options['orderBy'])) {
                 $orderBy_condition = array();
                 foreach ($this->options['orderBy'] as $k => $v) {
-                    if($v[0]){
+                    if ($v[0]) {
                         $orderBy_condition[] = $v[0];
-                    }                  
-
+                    }
                 }
-               
-                if($orderBy_condition){
+                if ($orderBy_condition) {
                     $orderBy_str = ' order by ' . implode(',', $orderBy_condition);
                 }
-                
             }
-           
             //limit conditions
             $limit = '';
             if (isset($this->options['limit'][0][0])) {
@@ -354,15 +363,15 @@ class Mysql {
                 }
             }
         } else {
-            //select field
-            $fields_str = isset($this->options['fields'][0][0]) ? $this->options['fields'][0][0] : '*';
+            //column
+            $column_name = isset($this->options['fields'][0][0]) ? $this->options['fields'][0][0] : '*';
             //where
             $where = $this->parseWhere();
             //whereIn
             $whereIn = $this->parseWhereIn();
             $iswhere = ($where['condition'] || $whereIn['condition']) ? ' WHERE ' : '';
             $where_and_in = ($where['condition'] && $whereIn['condition']) ? ' and ' : '';
-            $sql = 'SELECT count('.$fields_str.') FROM `'.$this->table_name.'`' .$iswhere .$where['condition'] . $where_and_in . $whereIn['condition'];
+            $sql = 'SELECT count(' . $column_name . ') FROM `' . $this->table_name . '`' . $iswhere . $where['condition'] . $where_and_in . $whereIn['condition'];
             $this->stmt = $this->prepareSql($sql);
             $binValues = array_merge($where['value'], $whereIn['value']);
             foreach ($binValues as $k => & $v) {
@@ -405,15 +414,14 @@ class Mysql {
         $whereIn = array('condition' => '', 'value' => array());
         if (isset($this->options['whereIn'])) {
             foreach ($this->options['whereIn'] as $k => $v) {
-                if($v[1]){
+                if ($v[1]) {
                     $count_arr = count($v[1]);
                     $make_arr = array_fill(0, $count_arr, '?');
                     $whereInArr[] = $v[0] . ' IN (' . implode(',', $make_arr) . ')';
                     foreach ((array)$v[1] as $k2 => $v2) {
                         $whereIn_values[] = $v2;
-                    }                    
+                    }
                 }
-
             }
             $whereInSql = implode(' and ', $whereInArr);
             $whereIn['condition'] = $whereInSql;
@@ -442,20 +450,19 @@ class Mysql {
      *@param string $sql
      *@return statement
      */
-    private function sqlExecute() {        
+    private function sqlExecute() {
         try {
-            return $this->stmt->execute();           
+            return $this->stmt->execute();
         }
         catch(PDOException $e) {
             $this->Msg($e->getMessage());
         }
-        
-    }    
+    }
     /**
-     * 魔术方法
+     * __call
      * @access public
-     * @param  string $func 方法名
-     * @param  array  $args 参数
+     * @param  string $func
+     * @param  array  $args
      * @return mixed
      */
     public function __call($func, $args) {
@@ -466,35 +473,42 @@ class Mysql {
         exit('Call to undefined method :' . $func . '()' . ' in  "' . __FILE__ . '"');
     }
     /**
-     * 当前执行的SQL语句
-     * @return string
+     * getQueryLog
+     * @access public
+     * @return mixed
      */
     public function getQueryLog() {
         return $this->sql;
     }
     /**
-     * 执行一条SQL语句
-     * 用于查询记录
+     * query
+     * @access public
+     * @param  string $sql
+     * @return mixed
      */
     public function query($sql) {
         return $this->PDO->query($sql);
     }
     /**
-     * 执行一条SQL语句
-     * 用于插入记录
+     * query
+     * @access public
+     * @param  string $sql
+     * @return mixed
      */
     public function exec($sql) {
         return $this->PDO->exec($sql);
     }
     /**
-     * 执行一条SQL语句
-     * 用于删除记录
+     * query
+     * @access public
+     * @param  string $sql
+     * @return mixed
      */
     public function execute($sql) {
         return $this->PDO->execute($sql);
     }
     /**
-     * 转义字符串
+     * quote
      * @param  string $str
      * @return string
      */
@@ -503,27 +517,23 @@ class Mysql {
     }
     /**
      * beginTransaction
-     * @param  string $str
-     * @return string
+     * @return mixed
      */
     public function beginTransaction() {
         return $this->PDO->beginTransaction();
     }
     /**
      * rollback
-     * @param  string $str
-     * @return string
-     */    
+     * @return mixed
+     */
     public function rollback() {
         return $this->PDO->rollback();
     }
     /**
      * commit
-     * @param  string $str
-     * @return string
+     * @return mixed
      */
     public function commit() {
         return $this->PDO->commit();
     }
-
 }
