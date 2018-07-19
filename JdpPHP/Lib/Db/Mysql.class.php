@@ -20,7 +20,7 @@ class Mysql
      * @access private
      * @param  array  $config
      */
-    private function __construct($config = array())
+    private function __construct()
     {
     }
 
