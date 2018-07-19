@@ -4,7 +4,8 @@
 // +----------------------------------------------------------------------
 // | Author: alice <wky0218@hotmail.com>
 // +----------------------------------------------------------------------
-class Mysql {
+class Mysql
+{
     private static $object;
     private $PDO;
     private $prepare;
@@ -13,41 +14,49 @@ class Mysql {
     private $table_prefix;
     private $options = array();
     private $sql;
+
     /**
      * __construct
      * @access private
      * @param  array  $config
      */
-    private function __construct($config = array()) {
+    private function __construct($config = array())
+    {
     }
+
     /**
      * getInstance
      * @access public
      * @param  array  $config
      * @return mixed
      */
-    public static function getInstance() {
+    public static function getInstance()
+    {
         if (!(self::$object instanceof self)) {
             self::$object = new self;
         }
         return self::$object;
     }
+
     /**
      * __clone
      * @access public
      * @param  array  $config
      * @return mixed
      */
-    private function __clone() {
+    private function __clone()
+    {
         trigger_error('Clone is not allow!', E_USER_ERROR);
     }
+
     /**
      * connect
      * @access public
      * @param  array  $config
      * @return mixed
      */
-    public function connect($config) {
+    public function connect($config)
+    {
         $type = $config['type'];
         $host = $config['host'];
         $dbname = $config['dbname'];
@@ -66,18 +75,19 @@ class Mysql {
             $this->PDO->setAttribute(PDO::ATTR_ORACLE_NULLS, true);
             //由MySQL完成变量的转义处理
             $this->PDO->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
-        }
-        catch(PDOException $e) {
+        } catch (PDOException $e) {
             $this->Msg("PDO连接错误信息：" . $e->getMessage());
         }
         return $this;
     }
+
     /**
      *Msg
      *@param string $error
      *@return output
      */
-    private function Msg($error = "") {
+    private function Msg($error = "")
+    {
         $html = "<html>
                   <head>
                     <meta http-equiv='Content-Type' content='text/html; charset=UTF-8'/>
@@ -94,31 +104,35 @@ class Mysql {
         echo $html;
         exit;
     }
+
     /**
      *table
      *@param string $table_name
      *@param string $table_prefix
      *@return obj
      */
-    public function table($table_name = '', $table_prefix = '') {
+    public function table($table_name = '', $table_prefix = '')
+    {
         if ('' != $table_prefix) {
             $this->table_prefix = $table_prefix;
         }
         $this->table_name = $this->table_prefix . $table_name;
         return $this;
     }
+
     /**
      *insert
      *@param string||array $param1
      *@param array $param2
      *@return bool
      */
-    public function insert($param1 = null, $param2 = array()) {
+    public function insert($param1 = null, $param2 = array())
+    {
         if (is_string($param1) && is_array($param2)) {
             $sql = $param1;
             $this->stmt = $this->prepareSql($sql);
             if (!empty($param2)) {
-                foreach ($param2 as $k => & $v) {
+                foreach ($param2 as $k => &$v) {
                     $this->stmt->bindParam($k + 1, $v);
                 }
             }
@@ -132,22 +146,24 @@ class Mysql {
             $value = join(',', $values);
             $sql = 'INSERT INTO `' . $this->table_name . '`(' . $name . ') VALUES(' . $value . ')';
             $this->stmt = $this->prepareSql($sql);
-            foreach ($param1 as $k => & $v) {
+            foreach ($param1 as $k => &$v) {
                 $this->stmt->bindParam(':' . $k, $v);
             }
         }
         $result = $this->sqlExecute();
         return $this->PDO->lastinsertid();
     }
+
     /**
      * insertAll
      * @param array  $data
      * @param int    $rows
      * @param string $table
      */
-    public function insertAll($data, $rows = 100, $table = null) {
+    public function insertAll($data, $rows = 100, $table = null)
+    {
         $table = is_null($table) ? $this->table_name : $table;
-        foreach ((array)$data as $k => $v) {
+        foreach ((array) $data as $k => $v) {
             $fields = array_keys($v);
             break;
         }
@@ -163,17 +179,17 @@ class Mysql {
                 $insertData[] = $v2;
             }
             $oneRec_str = join(',', $oneRec_arr);
-            $sql.= '(' . $oneRec_str . '),';
+            $sql .= '(' . $oneRec_str . '),';
             $t = ($i + 1) % $rows;
             if ($t == 0 || ($i + 1) == count($data)) {
                 $sql = rtrim($sql, ',') . ';';
                 $this->stmt = $this->prepareSql($sql);
-                foreach ($insertData as $bk => & $value) {
+                foreach ($insertData as $bk => &$value) {
                     $this->stmt->bindParam($bk + 1, $value);
                 }
                 $res = $this->sqlExecute();
                 $rowCount = $this->stmt->rowCount();
-                $insertNum+= $rowCount;
+                $insertNum += $rowCount;
                 //reset
                 $sql = 'INSERT INTO `' . $table . '`(' . $field . ') VALUES';
                 $insertData = array();
@@ -182,18 +198,20 @@ class Mysql {
         }
         return $insertNum;
     }
+
     /**
      *update
      *@param string||array $param1
      *@param array $param2
      *@return bool
      */
-    public function update($param1 = null, $param2 = array()) {
+    public function update($param1 = null, $param2 = array())
+    {
         if (is_string($param1) && is_array($param2)) {
             $sql = $param1;
             $this->stmt = $this->prepareSql($sql);
             if (!empty($param2)) {
-                foreach ($param2 as $k => & $v) {
+                foreach ($param2 as $k => &$v) {
                     $this->stmt->bindParam($k + 1, $v);
                 }
             }
@@ -213,24 +231,26 @@ class Mysql {
             $this->stmt = $this->prepareSql($sql);
             $row_values = array_values($param1);
             $binValues = array_merge($row_values, $where['value'], $whereIn['value']);
-            foreach ($binValues as $k => & $v) {
+            foreach ($binValues as $k => &$v) {
                 $this->stmt->bindParam($k + 1, $v);
             }
         }
         $result = $this->sqlExecute();
         return $this->stmt->rowCount();
     }
+
     /**
      *delete
      *@param string $sql
      *@return bool
      */
-    public function delete($param1 = null, $param2 = array()) {
+    public function delete($param1 = null, $param2 = array())
+    {
         if (is_string($param1) && is_array($param2)) {
             $sql = $param1;
             $this->stmt = $this->prepareSql($sql);
             if (!empty($param2)) {
-                foreach ($param2 as $k => & $v) {
+                foreach ($param2 as $k => &$v) {
                     $this->stmt->bindParam($k + 1, $v);
                 }
             }
@@ -244,13 +264,14 @@ class Mysql {
             $sql = 'DELETE FROM ' . $this->table_name . $iswhere . $where['condition'] . $where_and_in . $whereIn['condition'];
             $this->stmt = $this->prepareSql($sql);
             $binValues = array_merge($where['value'], $whereIn['value']);
-            foreach ($binValues as $k => & $v) {
+            foreach ($binValues as $k => &$v) {
                 $this->stmt->bindParam($k + 1, $v);
             }
         }
         $result = $this->sqlExecute();
         return $this->stmt->rowCount();
     }
+
     /**
      *select
      *@param string $param1
@@ -258,17 +279,18 @@ class Mysql {
      *@param bool $all
      *@return mixed
      */
-    public function select($param1 = null, $param2 = array(), $all = true) {
+    public function select($param1 = null, $param2 = array(), $all = true)
+    {
         if (is_string($param1) && is_array($param2)) {
             $sql = $param1;
             $this->stmt = $this->prepareSql($sql);
             if (!empty($param2)) {
-                foreach ($param2 as $k => & $v) {
+                foreach ($param2 as $k => &$v) {
                     $this->stmt->bindParam($k + 1, $v);
                 }
             }
         } else {
-            //select fields
+            //columns
             if (isset($this->options['fields'])) {
                 $fields = array();
                 foreach ($this->options['fields'] as $k => $v) {
@@ -300,7 +322,7 @@ class Mysql {
             if (isset($this->options['having'])) {
                 foreach ($this->options['having'] as $k => $v) {
                     $having_condition[] = $v[0];
-                    foreach ((array)$v[1] as $k2 => $v2) {
+                    foreach ((array) $v[1] as $k2 => $v2) {
                         $having_values[] = $v2;
                     }
                 }
@@ -329,7 +351,7 @@ class Mysql {
             $sql = 'SELECT ' . $fields_str . ' FROM ' . $this->table_name . $iswhere . $where['condition'] . $where_and_in . $whereIn['condition'] . $group_by . $having . $orderBy_str . $limit;
             $this->stmt = $this->prepareSql($sql);
             $binValues = array_merge($where['value'], $whereIn['value'], $having_values);
-            foreach ($binValues as $k => & $v) {
+            foreach ($binValues as $k => &$v) {
                 $this->stmt->bindParam($k + 1, $v);
             }
         }
@@ -338,27 +360,31 @@ class Mysql {
         $row = $all === true ? $this->stmt->fetchAll() : $this->stmt->fetch();
         return $row;
     }
+
     /**
      *find
      *@param string $param1
      *@param array $param2
      *@return mixed
      */
-    public function find($param1 = null, $param2 = array()) {
+    public function find($param1 = null, $param2 = array())
+    {
         return $this->select($param1, $param2, false);
     }
+
     /**
      *count
      *@param string $param1
      *@param array $param2
      *@return mixed
      */
-    public function count($param1 = null, $param2 = array()) {
+    public function count($param1 = null, $param2 = array())
+    {
         if (is_string($param1) && is_array($param2)) {
             $sql = $param1;
             $this->stmt = $this->prepareSql($sql);
             if (!empty($param2)) {
-                foreach ($param2 as $k => & $v) {
+                foreach ($param2 as $k => &$v) {
                     $this->stmt->bindParam($k + 1, $v);
                 }
             }
@@ -374,7 +400,7 @@ class Mysql {
             $sql = 'SELECT count(' . $column_name . ') FROM `' . $this->table_name . '`' . $iswhere . $where['condition'] . $where_and_in . $whereIn['condition'];
             $this->stmt = $this->prepareSql($sql);
             $binValues = array_merge($where['value'], $whereIn['value']);
-            foreach ($binValues as $k => & $v) {
+            foreach ($binValues as $k => &$v) {
                 $this->stmt->bindParam($k + 1, $v);
             }
         }
@@ -383,18 +409,79 @@ class Mysql {
         $total = $rows[0];
         return $total;
     }
+
+    /**
+     *increment
+     *@param array $column
+     *@param array $count
+     *@return mixed
+     */
+    public function increment($column = array(), $count = array())
+    {
+
+        $rowSql = array();
+        foreach ($column as $key => $value) {
+            $n = isset($count[$key]) ? $count[$key] : 1;
+            $rowSql[] = '`' . $value . '` = `' . $value . '`+' . $n;
+        }
+        $rowSql = implode(',', $rowSql);
+        $where = $this->parseWhere();
+        $whereIn = $this->parseWhereIn();
+        $iswhere = ($where['condition'] || $whereIn['condition']) ? ' WHERE ' : '';
+        $where_and_in = ($where['condition'] && $whereIn['condition']) ? ' and ' : '';
+        $sql = ' UPDATE ' . $this->table_name . ' SET ' . $rowSql . $iswhere . $where['condition'] . $where_and_in . $whereIn['condition'];
+        $this->stmt = $this->prepareSql($sql);
+        $binValues = array_merge($where['value'], $whereIn['value']);
+        foreach ($binValues as $k => &$v) {
+            $this->stmt->bindParam($k + 1, $v);
+        }
+
+        $result = $this->sqlExecute();
+        return $this->stmt->rowCount();
+
+    }
+
+    /**
+     *decrement
+     *@param string $sql
+     *@return array
+     */
+    public function decrement($column = array(), $count = array())
+    {
+        $rowSql = array();
+        foreach ($column as $key => $value) {
+            $n = isset($count[$key]) ? $count[$key] : 1;
+            $rowSql[] = '`' . $value . '` = `' . $value . '`-' . $n;
+        }
+        $rowSql = implode(',', $rowSql);
+        $where = $this->parseWhere();
+        $whereIn = $this->parseWhereIn();
+        $iswhere = ($where['condition'] || $whereIn['condition']) ? ' WHERE ' : '';
+        $where_and_in = ($where['condition'] && $whereIn['condition']) ? ' and ' : '';
+        $sql = ' UPDATE ' . $this->table_name . ' SET ' . $rowSql . $iswhere . $where['condition'] . $where_and_in . $whereIn['condition'];
+
+        $this->stmt = $this->prepareSql($sql);
+        $binValues = array_merge($where['value'], $whereIn['value']);
+        foreach ($binValues as $k => &$v) {
+            $this->stmt->bindParam($k + 1, $v);
+        }
+        $result = $this->sqlExecute();
+        return $this->stmt->rowCount();
+    }
+
     /**
      *parseWhere
      *@param string $sql
      *@return array
      */
-    private function parseWhere() {
+    private function parseWhere()
+    {
         $where = array('condition' => '', 'value' => array());
         if (isset($this->options['where'])) {
             foreach ($this->options['where'] as $k => $v) {
                 if (!empty($v[0])) {
                     $where_condition[] = $v[0];
-                    foreach ((array)$v[1] as $k2 => $v2) {
+                    foreach ((array) $v[1] as $k2 => $v2) {
                         $where_values[] = $v2;
                     }
                 }
@@ -405,12 +492,14 @@ class Mysql {
         }
         return $where;
     }
+
     /**
      *parseWhereIn
      *@param string $sql
      *@return array
      */
-    private function parseWhereIn() {
+    private function parseWhereIn()
+    {
         $whereIn = array('condition' => '', 'value' => array());
         if (isset($this->options['whereIn'])) {
             foreach ($this->options['whereIn'] as $k => $v) {
@@ -418,7 +507,7 @@ class Mysql {
                     $count_arr = count($v[1]);
                     $make_arr = array_fill(0, $count_arr, '?');
                     $whereInArr[] = $v[0] . ' IN (' . implode(',', $make_arr) . ')';
-                    foreach ((array)$v[1] as $k2 => $v2) {
+                    foreach ((array) $v[1] as $k2 => $v2) {
                         $whereIn_values[] = $v2;
                     }
                 }
@@ -429,35 +518,38 @@ class Mysql {
         }
         return $whereIn;
     }
+
     /**
      *prepareSql
      *@param string $sql
      *@return statement
      */
-    private function prepareSql($sql) {
+    private function prepareSql($sql)
+    {
         $this->sql = $sql;
         try {
             $this->stmt = $this->PDO->prepare($sql);
             unset($this->options);
-        }
-        catch(PDOException $e) {
+        } catch (PDOException $e) {
             $this->Msg($e->getMessage());
         }
         return $this->stmt;
     }
+
     /**
      *sqlExecute
      *@param string $sql
      *@return statement
      */
-    private function sqlExecute() {
+    private function sqlExecute()
+    {
         try {
             return $this->stmt->execute();
-        }
-        catch(PDOException $e) {
+        } catch (PDOException $e) {
             $this->Msg($e->getMessage());
         }
     }
+
     /**
      * __call
      * @access public
@@ -465,75 +557,93 @@ class Mysql {
      * @param  array  $args
      * @return mixed
      */
-    public function __call($func, $args) {
+    public function __call($func, $args)
+    {
         if (in_array($func, array('fields', 'as', 'join', 'where', 'whereIn', 'orderBy', 'groupBy', 'limit', 'having'))) {
             $this->options[$func][] = $args;
             return $this;
         }
         exit('Call to undefined method :' . $func . '()' . ' in  "' . __FILE__ . '"');
     }
+
     /**
      * getQueryLog
      * @access public
      * @return mixed
      */
-    public function getQueryLog() {
+    public function getQueryLog()
+    {
         return $this->sql;
     }
+
     /**
      * query
      * @access public
      * @param  string $sql
      * @return mixed
      */
-    public function query($sql) {
+    public function query($sql)
+    {
         return $this->PDO->query($sql);
     }
+
     /**
      * query
      * @access public
      * @param  string $sql
      * @return mixed
      */
-    public function exec($sql) {
+    public function exec($sql)
+    {
         return $this->PDO->exec($sql);
     }
+
     /**
      * query
      * @access public
      * @param  string $sql
      * @return mixed
      */
-    public function execute($sql) {
+    public function execute($sql)
+    {
         return $this->PDO->execute($sql);
     }
+
     /**
      * quote
      * @param  string $str
      * @return string
      */
-    public function quote($str) {
+    public function quote($str)
+    {
         return $this->PDO->quote($str);
     }
+
     /**
      * beginTransaction
      * @return mixed
      */
-    public function beginTransaction() {
+    public function beginTransaction()
+    {
         return $this->PDO->beginTransaction();
     }
+
     /**
      * rollback
      * @return mixed
      */
-    public function rollback() {
+    public function rollback()
+    {
         return $this->PDO->rollback();
     }
+
     /**
      * commit
      * @return mixed
      */
-    public function commit() {
+    public function commit()
+    {
         return $this->PDO->commit();
     }
+
 }
