@@ -599,17 +599,6 @@ class Mysql
     }
 
     /**
-     * query
-     * @access public
-     * @param  string $sql
-     * @return mixed
-     */
-    public function execute($sql)
-    {
-        return $this->PDO->execute($sql);
-    }
-
-    /**
      * quote
      * @param  string $str
      * @return string
