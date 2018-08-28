@@ -29,21 +29,21 @@ return array(
     /**
      * 布局
      */
-    'TPL_L_DELIM' => '{', // 左定界符
-    'TPL_R_DELIM' => '}', // 右定界符
+    'TPL_L_DELIM' => '<{', // 左定界符
+    'TPL_R_DELIM' => '}>', // 右定界符
     'TPL_TEMPLATE_SUFFIX' => '.html', // 默认模板文件后缀
     /**
      * 数据库
      */
-	'DB_CONFIG'  => array(			
-		'type'					=> 'mysql', //数据库类型
-		'host'					=> 'localhost', //数据库连接地址
-		'user'					=> 'root', //数据库用户名
-		'password'				=> '', //数据库密码
-		'dbname'				=> '', //数据库名称
-		'prefix'				=> '', //数据库表前缀
-		'charset'    			=> 'utf8',
-	),
+    'DB_CONFIG'  => array(          
+        'type'                  => 'mysql', //数据库类型
+        'host'                  => '127.0.0.1', //数据库连接地址
+        'user'                  => 'root', //数据库用户名
+        'password'              => '', //数据库密码
+        'dbname'                => '', //数据库名称
+        'prefix'                => 'jdp_', //数据库表前缀
+        'charset'               => 'utf8',
+    ),
     /**
      * 默认设定
      */

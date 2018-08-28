@@ -30,15 +30,15 @@ return array(
     'TPL_R_DELIM'       => '}>', //右定界符
 
     /*数据库*/
-	'DB_CONFIG'  => array(			
-		'type'					=> 'mysql', //数据库类型
-		'host'					=> 'localhost', //数据库连接地址
-		'user'					=> 'root', //数据库用户名
-		'password'				=> '', //数据库密码
-		'dbname'				=> 'kp120', //数据库名称
-		'prefix'				=> 'gg_', //数据库表前缀
-		'charset'    			=> 'utf8',
-	),
+    'DB_CONFIG'  => array(          
+        'type'                  => 'mysql', //数据库类型
+        'host'                  => 'localhost', //数据库连接地址
+        'user'                  => 'root', //数据库用户名
+        'password'              => '', //数据库密码
+        'dbname'                => '', //数据库名称
+        'prefix'                => 'jdp_', //数据库表前缀
+        'charset'               => 'utf8',
+    ),
 
         
 );

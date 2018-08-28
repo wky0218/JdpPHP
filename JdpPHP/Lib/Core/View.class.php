@@ -37,8 +37,10 @@ class View
         $this->tpl_dir = empty($tpl_dir) ? APP_TPL_PATH : $tpl_dir;
         $this->parse_dir = empty($parse_dir) ? APP_TPL_PARSE_PATH : $parse_dir;
         $this->cache_dir = empty($cache_dir) ? APP_HTML_CACHE_PATH : '';
-        $this->left = !empty(C('TPL_L_DELIM')) ? C('TPL_L_DELIM') : $this->left;
-        $this->right = !empty(C('TPL_R_DELIM')) ? C('TPL_R_DELIM') : $this->right;
+        $left_delim = C('TPL_L_DELIM');
+        $right_delim = C('TPL_R_DELIM');
+        $this->left = $left_delim ? $left_delim : $this->left;
+        $this->right = $right_delim ? $right_delim : $this->right;
 
     }
 

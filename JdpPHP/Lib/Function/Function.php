@@ -76,37 +76,6 @@ function C($name = null, $val = null) {
 } 
 
 
-/**
- * D函数用于实例化一个自定义的模型文件，没有则用默认Model
- * 
- * @param string $tablePrefix 表前缀
- * @param mixed $link 数据库连接信息
- * @return Model 
- */
-function D($name = '', $tablePrefix = '', $db_config = array('host'=>'','user'=>'','password'=>'','dbname'=>'')) {
-    static $_model = array();
-
-    $dbname = $db_config['dbname']?$db_config['dbname']:C('DB_NAME');
-    $tablePrefix = $tablePrefix?$tablePrefix:C('DB_PREFIX');
-    $class = 'Model';
-
-    $guid = $dbname.':'.$tablePrefix . $name . '_' . $class; 
-    // dump($guid);die;
-    // 查长应用模型目录是否存在自定义模型,有则实例化它，没有则实例化默认模型
-    $file = APP_MODEL_PATH . "/" . ucfirst($name) . 'Model' . '.class.php';
-
-    if (is_file($file)) {
-        require $file;
-        $class = $name . 'Model';
-        $guid = APP_NAME . $tablePrefix . $name . '_' . $class;
-    } 
-
-    if (!isset($_model[$guid])){
-        $_model[$guid] = new $class($name, $tablePrefix, $db_config);
-    }
-
-    return $_model[$guid];
-} 
 
 /**
  * 文件缓存方法
@@ -168,7 +137,7 @@ function microtime_format($tag, $time){
 function U($mca, $arr = '') {
 
     $http_host = $_SERVER['HTTP_HOST'];
-    $http_x = $_SERVER['REQUEST_SCHEME'];
+    $http_x = $_SERVER['REQUEST_SCHEME']?$_SERVER['REQUEST_SCHEME']:'http';
     $mca_arr = explode('/', trim($mca, '/'));
     $count = count($mca_arr);
     if(3==$count){

@@ -164,8 +164,8 @@ return array(
         'host'                  => 'localhost', //数据库连接地址
         'user'                  => 'root', //数据库用户名
         'password'              => '', //数据库密码
-        'dbname'                => 'kp120', //数据库名称
-        'prefix'                => 'gg_', //数据库表前缀
+        'dbname'                => '', //数据库名称
+        'prefix'                => 'jdp_', //数据库表前缀
         'charset'               => 'utf8',
     ),
 
