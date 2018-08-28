@@ -29,7 +29,7 @@ class Db
             }
 
             $db_driver = ucfirst($config['type']);   
-            $dbClass = LIB_PATH .'Db/'. $db_driver.'.class.php';
+            $dbClass = LIB_PATH .'/Db/'. $db_driver.'.class.php';
 
             if(is_file($dbClass)){
                 require_once $dbClass; 

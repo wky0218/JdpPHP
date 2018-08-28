@@ -77,6 +77,7 @@ function C($name = null, $val = null) {
 
 
 
+
 /**
  * 文件缓存方法
  * 

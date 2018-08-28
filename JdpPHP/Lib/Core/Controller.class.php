@@ -3,7 +3,7 @@ defined('JDP_PATH') or exit('Access Denied!');
 /**
  * JDP Control控制器基类 抽象类
  */
- class Controller {
+abstract class Controller {
     // 视图对像
     protected $view = null; 
     // 初始化方法

@@ -32,7 +32,7 @@ class Application {
         // 设置时区
         date_default_timezone_set("PRC");
         // 系统的配置文件路径
-        $sys_config = CONFIG_PATH . 'Convention.php';
+        $sys_config = CONFIG_PATH . '/Convention.php';
         C(include $sys_config);
     }
     /**
@@ -40,17 +40,18 @@ class Application {
      */
     private static function _create_dir() {
         $module = C('DEFAULT_MODULE');
+
         $dir = array(
                 APP_PATH, 
                 APP_COMMON_PATH,
                 APP_COMMON_PATH_COMMON, 
                 APP_COMMON_PATH_CONF, 
-                APP_PATH . $module . '/', 
-                APP_PATH . $module . '/Common/', 
-                APP_PATH . $module . '/Controller/',
-                APP_PATH . $module . '/Model/', 
-                APP_PATH . $module . '/Conf/', 
-                APP_PATH . $module . '/View/', 
+                APP_PATH . '/'. $module, 
+                APP_PATH . '/'. $module . '/Common', 
+                APP_PATH . '/'. $module . '/Controller',
+                APP_PATH . '/'. $module . '/Model', 
+                APP_PATH . '/'. $module . '/Conf', 
+                APP_PATH . '/'. $module . '/View', 
                 APP_RUNTIME_PATH,
                 APP_LOG_PATH, 
                 APP_TEMP_PATH, 
@@ -58,6 +59,7 @@ class Application {
                 APP_CACHE_PATH,
                 );
         foreach ($dir as $d) {
+            
             // 目录不存在则创建目录
             is_dir($d) || mkdir($d, 0777, true);
         }
@@ -80,7 +82,7 @@ class IndexController extends Controller{
 }
 str;
         // 文件存在不创建
-        $control = APP_PATH . $module . '/Controller/' . 'IndexController.class.php';
+        $control = APP_PATH .'/'. $module . '/Controller/' . 'IndexController.class.php';
         if (!is_file($control)) {
             // 写入文件 失败提示
             file_put_contents($control, $php) || halt('创建' . $control . '失败');
@@ -90,11 +92,11 @@ str;
         // 如果是控制器 去应用中的Controller文件夹中 不是去 框架中的Extend文件夹下的Tool中找
         if (substr($className, -10) == 'Controller' && strlen($className) > 10) {
             // 文件路径
-            $file = APP_PATH . APP_MODULE_NAME . '/Controller/' . $className . '.class.php';
+            $file = APP_PATH .'/'. APP_MODULE_NAME . '/Controller/' . $className . '.class.php';
             // 检查文件是否存在
             if (!is_file($file)) {
                 //如果有空的控器就执行空控制器里的空方法
-                $emptyController = APP_PATH . APP_MODULE_NAME . '/Controller/EmptyController.class.php';
+                $emptyController = APP_PATH .'/'. APP_MODULE_NAME . '/Controller/EmptyController.class.php';
                 if (is_file($emptyController)) {
                     $obj_empty = new EmptyController();
                     if (!method_exists($obj_empty, '_empty')) {
@@ -121,7 +123,7 @@ str;
      */
     public static function _app_run() {
         // 应用配置文件路径
-        $app_config = APP_COMMON_PATH_CONF . 'Config.php';
+        $app_config = APP_COMMON_PATH_CONF . '/Config.php';
         // 载入配置
         if (is_file($app_config)) {
             C(include $app_config);
@@ -205,17 +207,17 @@ conf;
         // [获取当前模块名称]
         define('APP_MODULE_NAME', !empty($_GET[$varModule]) ? ucfirst($_GET[$varModule]) : C('DEFAULT_MODULE'));
         // 检查模块是否存在
-        if (APP_MODULE_NAME && in_array(APP_MODULE_NAME, C('MODULE_ALLOW_LIST')) && is_dir(APP_PATH . APP_MODULE_NAME)) {
+        if (APP_MODULE_NAME && in_array(APP_MODULE_NAME, C('MODULE_ALLOW_LIST')) && is_dir(APP_PATH .'/'. APP_MODULE_NAME)) {
             // 定义当前模块路径
-            define('APP_MODULE_PATH', APP_PATH . APP_MODULE_NAME);
+            define('APP_MODULE_PATH', APP_PATH .'/'. APP_MODULE_NAME);
             // 定义当前模块的模版文件路径
             define('APP_TPL_PATH', APP_MODULE_PATH . '/View');
             // 定义当前模块的模版编译文件路径APP_TPL_PARSE_PATH
-            define('APP_TPL_PARSE_PATH', APP_CACHE_PATH . APP_MODULE_NAME);
+            define('APP_TPL_PARSE_PATH', APP_CACHE_PATH .'/'. APP_MODULE_NAME);
             // 创建编译文件目录
             is_dir(APP_TPL_PARSE_PATH) || mkdir(APP_TPL_PARSE_PATH, 0777, true);
             // 定义当前模块静态html内容缓存文件路径
-            define('APP_HTML_CACHE_PATH', APP_RUNTIME_PATH . 'Html/' . APP_MODULE_NAME . '/');
+            define('APP_HTML_CACHE_PATH', APP_RUNTIME_PATH . '/Html/' . APP_MODULE_NAME . '/');
             // 定义当前模块的模型文件路径
             define('APP_MODEL_PATH', APP_MODULE_PATH . '/Model');
             // 加载模块配置文件
@@ -268,7 +270,7 @@ conf;
         $obj = new $fullController();
         if (!method_exists($obj, $actionName)) {
             //如果有空的控器就执行空控制器里的空方法
-            $emptyController = APP_PATH . APP_MODULE_NAME . '/Controller/EmptyController.class.php';
+            $emptyController = APP_PATH .'/'. APP_MODULE_NAME . '/Controller/EmptyController.class.php';
             if (is_file($emptyController)) {
                 $obj_empty = new EmptyController();
                 if (!method_exists($obj_empty, '_empty')) {
