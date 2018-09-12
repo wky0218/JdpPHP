@@ -224,17 +224,21 @@ class View
         $cache_rules = C('HTML_CACHE_RULES');
         // 缓存规则数组中的键
         $rules_key = APP_CONTROLLER_NAME . ":" . APP_ACTION_NAME;
+        
         if ($this->cache_on && isset($cache_rules[$rules_key])) {
 
             $rule_str = $cache_rules[$rules_key][0];
+            
             $rule_str = str_replace('{:controler}', APP_CONTROLLER_NAME, $rule_str);
+           
             $rule_str = str_replace('{:method}', APP_ACTION_NAME, $rule_str);
+            
             $rule_str = preg_replace_callback("/\{([^_]*)\}/i", function ($matchs) {
                 $param = $matchs[1];
                 return $_GET[$param];
             }, $rule_str);
 
-            // dump($rule_str);
+             
             // 目录不存在则创建目录
             is_dir($this->cache_dir) || mkdir($this->cache_dir, 0777, true);
             $this->cache_file = $this->cache_dir . $rule_str . $this->tpl_ext; //设置缓存文件路径

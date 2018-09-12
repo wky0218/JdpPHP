@@ -1,6 +1,7 @@
 <?php
 return array(
 	FUNCTION_PATH.'/Function.php',//加载自定义核心方法类
+	CACHE_PATH.'/Cache.class.php',//加载缓存类
 	CORE_PATH.'/Application.class.php',//加载应用运行所需要的类
 	CORE_PATH.'/Controller.class.php',//加载框架基类
 	CORE_PATH.'/Db.class.php',//加载框架模型类

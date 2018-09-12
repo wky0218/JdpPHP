@@ -85,8 +85,8 @@ function C($name = null, $val = null) {
  * @value 缓存数据
  * @path 缓存路径
  */
-function F($name, $value = '', $path = APP_DATA_PATH) {
-    static $_fcache = array();
+function F($name, $value = '', $type = '1', $path = APP_DATA_PATH.'/') {
+    //static $_fcache = array();
     $filename = $path . $name . ".php";
 
     if ($value !== '') {
@@ -99,8 +99,16 @@ function F($name, $value = '', $path = APP_DATA_PATH) {
             $dir = dirname($filename);
             if (!is_dir($dir))
                 mkdir($dir, 0755, true);
-            $_fcache[$name] = $value;
-            file_put_contents($filename, "<?php return " . var_export($value, true) . ";?>");
+           // $_fcache[$name] = $value;
+            if($type=='1'){
+                file_put_contents($filename, "<?php return " . var_export($value, true) . ";?>");
+            }else if($type=='2'){
+                $content = json_encode($value);
+                file_put_contents($filename, "<?php exit();?>" . $content);
+            }else{
+                file_put_contents($filename, "<?php exit();?>" .serialize($value));
+            }
+            
             return true;
         } 
     } 

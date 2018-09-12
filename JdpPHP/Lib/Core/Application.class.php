@@ -286,26 +286,26 @@ conf;
         //判断是否开启静态缓存
         $html_cache_on = C('HTML_CACHE_ON');
         if ($html_cache_on) {
-            // 缓存规则数组
-            $html_cache_rules = C('HTML_CACHE_RULES');
-            // 缓存规则数组中的键
-            $html_cache_rkey = APP_CONTROLLER_NAME . ":" . APP_ACTION_NAME;
-            $rule_str = $html_cache_rules[$html_cache_rkey][0];
-            $rule_str = str_replace('{:controler}', APP_CONTROLLER_NAME, $rule_str);
-            $rule_str = str_replace('{:method}', APP_ACTION_NAME, $rule_str);
-            $rule_str = preg_replace_callback("/\{([^_]*)\}/i", function ($matches) {
-                $param = $matches[1];
-                $v = $_GET[$param];
-                return $v;
-            }, $rule_str);
-            // 目录不存在则创建目录
-            is_dir(APP_HTML_CACHE_PATH) || mkdir(APP_HTML_CACHE_PATH, 0777, true);
-            $html_cache_file = APP_HTML_CACHE_PATH . $rule_str . 'html'; //缓存文件路径
-            $html_cache_lifeTime = $html_cache_rules[$html_cache_rkey][1]; //缓存时间
-            if (file_exists($html_cache_file) && filemtime($html_cache_file) + $html_cache_lifeTime > time()) {
-                include $html_cache_file; //载入缓存文件
-                return;
-            }
+            // // 缓存规则数组
+            // $html_cache_rules = C('HTML_CACHE_RULES');
+            // // 缓存规则数组中的键
+            // $html_cache_rkey = APP_CONTROLLER_NAME . ":" . APP_ACTION_NAME;
+            // $rule_str = $html_cache_rules[$html_cache_rkey][0];
+            // $rule_str = str_replace('{:controler}', APP_CONTROLLER_NAME, $rule_str);
+            // $rule_str = str_replace('{:method}', APP_ACTION_NAME, $rule_str);
+            // $rule_str = preg_replace_callback("/\{([^_]*)\}/i", function ($matches) {
+            //     $param = $matches[1];
+            //     $v = $_GET[$param];
+            //     return $v;
+            // }, $rule_str);
+            // // 目录不存在则创建目录
+            // is_dir(APP_HTML_CACHE_PATH) || mkdir(APP_HTML_CACHE_PATH, 0777, true);
+            // $html_cache_file = APP_HTML_CACHE_PATH .'/'. $rule_str . 'html'; //缓存文件路径
+            // $html_cache_lifeTime = $html_cache_rules[$html_cache_rkey][1]; //缓存时间
+            // if (file_exists($html_cache_file) && filemtime($html_cache_file) + $html_cache_lifeTime > time()) {
+            //     include $html_cache_file; //载入缓存文件
+            //     return;
+            // }
         }
         // 执行对像方法
         // $obj->$actionName();

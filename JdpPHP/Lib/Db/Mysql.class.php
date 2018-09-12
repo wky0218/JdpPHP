@@ -259,9 +259,12 @@ class Mysql
             $where = $this->parseWhere();
             //whereIn
             $whereIn = $this->parseWhereIn();
-            $iswhere = ($where['condition'] || $whereIn['condition']) ? ' WHERE ' : '';
+            $isCondition = ($where['condition'] || $whereIn['condition']) ? '' : 0;
             $where_and_in = ($where['condition'] && $whereIn['condition']) ? ' and ' : '';
-            $sql = 'DELETE FROM ' . $this->table_name . $iswhere . $where['condition'] . $where_and_in . $whereIn['condition'];
+
+
+            $sql = 'DELETE FROM ' . $this->table_name . ' WHERE ' .$isCondition . $where['condition'] . $where_and_in . $whereIn['condition'];
+
             $this->stmt = $this->prepareSql($sql);
             $binValues = array_merge($where['value'], $whereIn['value']);
             foreach ($binValues as $k => &$v) {

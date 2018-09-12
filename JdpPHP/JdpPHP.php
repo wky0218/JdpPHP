@@ -47,6 +47,8 @@ class JDP {
         define('CORE_PATH', LIB_PATH . '/Core'); 
         // 定义框架Function常量
         define('FUNCTION_PATH', LIB_PATH . '/Function'); 
+         // 定义框架Cache常量
+        define('CACHE_PATH', LIB_PATH . '/Cache');        
         // 定义应用常量
         defined('APP_PATH') || define('APP_PATH', dirname($_SERVER['SCRIPT_FILENAME'])); 
         // 系统运行时目录
