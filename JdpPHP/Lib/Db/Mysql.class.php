@@ -225,7 +225,7 @@ class Mysql
             $where = $this->parseWhere();
             //whereIn
             $whereIn = $this->parseWhereIn();
-            $iswhere = ($where['condition'] || $whereIn['condition']) ? ' WHERE ' : '';
+            $iswhere = ($where['condition'] || $whereIn['condition']) ? ' WHERE ' : ' WHERE 0 ';
             $where_and_in = ($where['condition'] && $whereIn['condition']) ? ' and ' : '';
             $sql = ' UPDATE ' . $this->table_name . ' SET ' . $rowSql . $iswhere . $where['condition'] . $where_and_in . $whereIn['condition'];
             $this->stmt = $this->prepareSql($sql);
@@ -259,16 +259,16 @@ class Mysql
             $where = $this->parseWhere();
             //whereIn
             $whereIn = $this->parseWhereIn();
-            $isCondition = ($where['condition'] || $whereIn['condition']) ? '' : 0;
+            $iswhere = ($where['condition'] || $whereIn['condition']) ? ' WHERE ' : ' WHERE 0 ';
             $where_and_in = ($where['condition'] && $whereIn['condition']) ? ' and ' : '';
 
-
-            $sql = 'DELETE FROM ' . $this->table_name . ' WHERE ' .$isCondition . $where['condition'] . $where_and_in . $whereIn['condition'];
+            $sql = 'DELETE FROM ' . $this->table_name . $iswhere . $where['condition'] . $where_and_in . $whereIn['condition'];
 
             $this->stmt = $this->prepareSql($sql);
             $binValues = array_merge($where['value'], $whereIn['value']);
             foreach ($binValues as $k => &$v) {
                 $this->stmt->bindParam($k + 1, $v);
+
             }
         }
         $result = $this->sqlExecute();
@@ -351,6 +351,7 @@ class Mysql
             }
             $iswhere = ($where['condition'] || $whereIn['condition']) ? ' WHERE ' : '';
             $where_and_in = ($where['condition'] && $whereIn['condition']) ? ' and ' : '';
+
             $sql = 'SELECT ' . $fields_str . ' FROM ' . $this->table_name . $iswhere . $where['condition'] . $where_and_in . $whereIn['condition'] . $group_by . $having . $orderBy_str . $limit;
             $this->stmt = $this->prepareSql($sql);
             $binValues = array_merge($where['value'], $whereIn['value'], $having_values);
@@ -392,6 +393,7 @@ class Mysql
                 }
             }
         } else {
+
             //column
             $column_name = isset($this->options['fields'][0][0]) ? $this->options['fields'][0][0] : '*';
             //where
@@ -401,13 +403,18 @@ class Mysql
             $iswhere = ($where['condition'] || $whereIn['condition']) ? ' WHERE ' : '';
             $where_and_in = ($where['condition'] && $whereIn['condition']) ? ' and ' : '';
             $sql = 'SELECT count(' . $column_name . ') FROM `' . $this->table_name . '`' . $iswhere . $where['condition'] . $where_and_in . $whereIn['condition'];
+
             $this->stmt = $this->prepareSql($sql);
+
             $binValues = array_merge($where['value'], $whereIn['value']);
+
             foreach ($binValues as $k => &$v) {
                 $this->stmt->bindParam($k + 1, $v);
             }
+
         }
         $this->sqlExecute();
+
         $rows = $this->stmt->fetch();
         $total = $rows[0];
         return $total;
@@ -481,17 +488,22 @@ class Mysql
     {
         $where = array('condition' => '', 'value' => array());
         if (isset($this->options['where'])) {
-            foreach ($this->options['where'] as $k => $v) {
+            $condition = array();
+            $values = array();
+            foreach ($this->options['where'] as $v) {
                 if (!empty($v[0])) {
-                    $where_condition[] = $v[0];
-                    foreach ((array) $v[1] as $k2 => $v2) {
-                        $where_values[] = $v2;
+                    $condition[] = $v[0];
+                    foreach ((array) $v[1] as $v2) {
+                        $values[] = $v2;
                     }
                 }
             }
-            $whereSql = implode(' and ', $where_condition);
-            $where['condition'] = $whereSql;
-            $where['value'] = $where_values;
+
+            if ($condition) {
+                $where['condition'] = implode(' and ', $condition);
+            }
+
+            $where['value'] = $values;
         }
         return $where;
     }
@@ -504,21 +516,28 @@ class Mysql
     private function parseWhereIn()
     {
         $whereIn = array('condition' => '', 'value' => array());
+
         if (isset($this->options['whereIn'])) {
-            foreach ($this->options['whereIn'] as $k => $v) {
-                if ($v[1]) {
-                    $count_arr = count($v[1]);
-                    $make_arr = array_fill(0, $count_arr, '?');
-                    $whereInArr[] = $v[0] . ' IN (' . implode(',', $make_arr) . ')';
-                    foreach ((array) $v[1] as $k2 => $v2) {
-                        $whereIn_values[] = $v2;
+            $condition = array();
+            $values = array();
+            foreach ($this->options['whereIn'] as $v) {
+                if ($v[1] && is_array($v[1])) {
+                    $c = count($v[1]);
+                    $make_arr = array_fill(0, $c, '?');
+                    $condition[] = $v[0] . ' IN (' . implode(',', $make_arr) . ')';
+                    foreach ($v[1] as $v2) {
+                        $values[] = $v2;
                     }
                 }
             }
-            $whereInSql = implode(' and ', $whereInArr);
-            $whereIn['condition'] = $whereInSql;
-            $whereIn['value'] = $whereIn_values;
+
+            if ($condition) {
+                $whereIn['condition'] = implode(' and ', $condition);
+            }
+
+            $whereIn['value'] = $values;
         }
+
         return $whereIn;
     }
 
