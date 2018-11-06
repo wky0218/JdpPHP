@@ -349,6 +349,10 @@ class Mysql
             if (isset($this->options['limit'][0][0])) {
                 $limit = ' limit ' . $this->options['limit'][0][0];
             }
+            if($all === false){
+                $limit = ' limit 1' ;
+            }
+
             $iswhere = ($where['condition'] || $whereIn['condition']) ? ' WHERE ' : '';
             $where_and_in = ($where['condition'] && $whereIn['condition']) ? ' and ' : '';
 
