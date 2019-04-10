@@ -248,7 +248,8 @@ conf;
             // 获取控制器
             $_GET[$varController] = array_shift($paths);
             // 获取方法
-            $_GET[$varAction] = array_shift($paths);
+            $acname = array_shift($paths);
+            $_GET[$varAction] = ($acname != 'index.php') ? $acname : '';
         }
         // [获取当前控制器名称]
         $controllerName = !empty($_GET[$varController]) ? $_GET[$varController] : C('DEFAULT_CONTROLLER');
